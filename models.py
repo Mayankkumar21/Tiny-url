@@ -10,7 +10,11 @@ class RedisClient:
     
     def __init__(self):
         self.client = redis.Redis(host=Config.REDIS_URL, port=Config.REDIS_PORT, password=Config.REDIS_TOKEN, db=0, socket_timeout=5)
-
+        ping = self.client.ping()
+        if ping is True:
+            print("Connected to redis")
+        else:
+            print("redis connection failed")
     def shorten_url(self, long_url):
         global counter
         characters = string.ascii_letters + string.digits
