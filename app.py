@@ -25,13 +25,11 @@ def redis_connect():
         print("AuthenticationError")
         sys.exit(1)
 
-# Create client
 redis_client = redis_connect()
 
 def insert_url_to_cache(short_url: str, long_url: str) -> bool:
     try:
-        # Store the long URL in Redis with a short URL as the key
-        state = redis_client.set(short_url, long_url)
+        state = redis_client.setex(short_url, timedelta(seconds=3600), long_url)
         return state
     except Exception as error:
         print(f"Error occurred: {error}")
@@ -39,10 +37,9 @@ def insert_url_to_cache(short_url: str, long_url: str) -> bool:
 
 def shorten_url(long_url):
     characters = string.ascii_letters + string.digits
-    while True:
-        short_url = ''.join(random.choice(characters) for _ in range(6))
-        if not redis_client.exists(short_url):  # Ensure short URL is unique
-            # Ensure that the long URL is in absolute format
+    for _ in range(0,10):
+        short_url = ''.join(random.choice(characters) for _ in range(3))
+        if not redis_client.exists(short_url):
             if not long_url.startswith('http://') and not long_url.startswith('https://'):
                 long_url = 'http://' + long_url
             success = insert_url_to_cache(short_url, long_url)
@@ -56,15 +53,14 @@ def index():
     if request.method == 'POST':
         long_url = request.form['long_url']
         short_url = shorten_url(long_url)
-        return render_template('home.html', short_url=short_url)
+        complete_short_url = request.url_root + short_url
+        return render_template('home.html', short_url=complete_short_url)
     return render_template('index.html')
 
 @app.route('/<short_url>')
 def redirect_url(short_url):
     long_url = redis_client.get(short_url)
     if long_url:
-        print(long_url)
-        print(long_url.decode('utf-8'))
         return redirect(long_url.decode('utf-8'))
     else:
         return "URL not found", 404
