@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TinyURL - Enter Long URL</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome to TinyURL</h1>
+      <form action="/" method="post">
+        <label for="long_url">Enter Long URL:</label>
+        <input type="text" id="long_url" name="long_url" required />
+        <button type="submit">Shorten URL</button>
+      </form>
+    </div>
+  </body>
+</html>
